@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: allo_inventory_db
+    environment:
+      POSTGRES_USER: allo
+      POSTGRES_PASSWORD: allo_dev_password
+      POSTGRES_DB: allo_inventory
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U allo -d allo_inventory"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Optional: Redis for local idempotency testing
+  redis:
+    image: redis:7-alpine
+    container_name: allo_inventory_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1
+
+volumes:
+  pgdata:
